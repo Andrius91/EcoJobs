@@ -403,6 +403,7 @@ data class LeaderboardCacheEntry(
 private fun Collection<LevelPlaceholder>.format(string: String, level: Int): String {
     var process = string
     for (placeholder in this) {
+        println("Antes (in for): " + process)
         process = process.replace("%${placeholder.id}%", placeholder(level))
     }
     println(process)
