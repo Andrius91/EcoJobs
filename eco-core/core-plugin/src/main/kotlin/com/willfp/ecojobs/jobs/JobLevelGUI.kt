@@ -13,6 +13,7 @@ import com.willfp.eco.core.gui.slot.MaskItems
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.ItemStackBuilder
 import com.willfp.eco.util.NumberUtils
+import com.willfp.eco.util.toNiceString
 import com.willfp.ecojobs.api.getJobLevel
 import com.willfp.ecomponent.components.LevelComponent
 import com.willfp.ecomponent.components.LevelState
@@ -51,7 +52,8 @@ class JobLevelGUI(
                             plugin.configYml.getFormattedStrings("level-gui.progression-slots.$key.lore"),
                             player,
                             forceLevel = level
-                        ).map { line -> PlaceholderAPI.setPlaceholders(player, line) }
+                        ).map { line -> NumberUtils.evaluateExpression(PlaceholderAPI.setPlaceholders(player, line))
+                            .toNiceString() }
                     )
                     .setAmount(
                         if (plugin.configYml.getBool("level-gui.progression-slots.level-as-amount")) level else 1

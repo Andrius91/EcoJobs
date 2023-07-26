@@ -342,7 +342,8 @@ class Job(
             }
 
             // Process each line of the lore through PlaceholderAPI
-            rawLore.map { line -> PlaceholderAPI.setPlaceholders(player, line) }
+            rawLore.map { line -> NumberUtils.evaluateExpression(PlaceholderAPI.setPlaceholders(player, line))
+                .toNiceString() }
         }.build()
     }
 
