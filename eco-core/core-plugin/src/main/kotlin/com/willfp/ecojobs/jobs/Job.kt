@@ -415,7 +415,6 @@ private fun Collection<LevelPlaceholder>.format(string: String, level: Int): Str
     for (placeholder in this) {
         process = process.replace("%${placeholder.id}%", placeholder(level))
     }
-    println(process)
     return process
 }
 

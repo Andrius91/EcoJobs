@@ -16,6 +16,7 @@ import com.willfp.eco.util.NumberUtils
 import com.willfp.ecojobs.api.getJobLevel
 import com.willfp.ecomponent.components.LevelComponent
 import com.willfp.ecomponent.components.LevelState
+import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
@@ -37,23 +38,27 @@ class JobLevelGUI(
 
                 return ItemStackBuilder(Items.lookup(plugin.configYml.getString("level-gui.progression-slots.$key.item")))
                     .setDisplayName(
-                        plugin.configYml.getFormattedString("level-gui.progression-slots.$key.name")
-                            .replace("%job%", job.name)
-                            .replace("%level%", level.toString())
-                            .replace("%level_numeral%", NumberUtils.toNumeral(level))
+                        PlaceholderAPI.setPlaceholders(player,
+                            plugin.configYml.getFormattedString("level-gui.progression-slots.$key.name")
+                                .replace("%job%", job.name)
+                                .replace("%level%", level.toString())
+                                .replace("%level_numeral%", NumberUtils.toNumeral(level))
+                        )
                     )
                     .addLoreLines(
+                        // Process each line of the lore through PlaceholderAPI
                         job.injectPlaceholdersInto(
                             plugin.configYml.getFormattedStrings("level-gui.progression-slots.$key.lore"),
                             player,
                             forceLevel = level
-                        )
+                        ).map { line -> PlaceholderAPI.setPlaceholders(player, line) }
                     )
                     .setAmount(
                         if (plugin.configYml.getBool("level-gui.progression-slots.level-as-amount")) level else 1
                     )
                     .build()
             }
+
 
             override fun getLevelState(player: Player, level: Int): LevelState {
                 return when {
