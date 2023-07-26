@@ -6,6 +6,7 @@ import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.ItemStackBuilder
+import com.willfp.eco.core.placeholder.Placeholder
 import com.willfp.eco.core.placeholder.PlayerPlaceholder
 import com.willfp.eco.core.placeholder.PlayerStaticPlaceholder
 import com.willfp.eco.core.placeholder.PlayerlessPlaceholder
@@ -404,6 +405,7 @@ private fun Collection<LevelPlaceholder>.format(string: String, level: Int): Str
     for (placeholder in this) {
         process = process.replace("%${placeholder.id}%", placeholder(level))
     }
+    println(process)
     return process
 }
 
