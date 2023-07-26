@@ -31,6 +31,7 @@ import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.counters.Counters
 import com.willfp.libreforge.effects.EffectList
 import com.willfp.libreforge.effects.Effects
+import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
@@ -112,6 +113,7 @@ class Job(
         ) { p ->
             p.getJobLevel(this).toString()
         })
+
 
         effects = Effects.compile(
             config.getSubsections("effects"),
@@ -320,10 +322,14 @@ class Job(
         val level = player.getJobLevel(this)
 
         return ItemStackBuilder(base).setDisplayName(
-            plugin.configYml.getFormattedString("gui.job-icon.name").replace("%level%", level.toString())
-                .replace("%level_numeral%", NumberUtils.toNumeral(level)).replace("%job%", this.name)
+            PlaceholderAPI.setPlaceholders(player,
+                plugin.configYml.getFormattedString("gui.job-icon.name")
+                    .replace("%level%", level.toString())
+                    .replace("%level_numeral%", NumberUtils.toNumeral(level))
+                    .replace("%job%", this.name)
+            )
         ).addLoreLines {
-            injectPlaceholdersInto(
+            val rawLore = injectPlaceholdersInto(
                 plugin.configYml.getStrings("gui.job-icon.lore"), player
             ) + if (player.hasJobActive(this)) {
                 plugin.configYml.getStrings("gui.job-icon.active-lore")
@@ -334,8 +340,12 @@ class Job(
             } else {
                 emptyList()
             }
+
+            // Process each line of the lore through PlaceholderAPI
+            rawLore.map { line -> PlaceholderAPI.setPlaceholders(player, line) }
         }.build()
     }
+
 
     fun getJobInfoIcon(player: Player): ItemStack {
         val base = baseItem.clone()
@@ -403,7 +413,6 @@ data class LeaderboardCacheEntry(
 private fun Collection<LevelPlaceholder>.format(string: String, level: Int): String {
     var process = string
     for (placeholder in this) {
-        println("Antes (in for): " + process)
         process = process.replace("%${placeholder.id}%", placeholder(level))
     }
     println(process)
