@@ -52,8 +52,7 @@ class JobLevelGUI(
                             plugin.configYml.getFormattedStrings("level-gui.progression-slots.$key.lore"),
                             player,
                             forceLevel = level
-                        ).map { line -> NumberUtils.evaluateExpression(PlaceholderAPI.setPlaceholders(player, line))
-                            .toNiceString() }
+                        ).map { line -> PlaceholderAPI.setPlaceholders(player, line) }
                     )
                     .setAmount(
                         if (plugin.configYml.getBool("level-gui.progression-slots.level-as-amount")) level else 1
