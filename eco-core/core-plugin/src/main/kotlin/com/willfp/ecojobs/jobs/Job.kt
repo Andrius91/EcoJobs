@@ -99,7 +99,7 @@ class Job(
         ) {
             NumberUtils.evaluateExpression(
                 PlaceholderAPI.setPlaceholders(it, sub.getString("value").replace("%level%",
-                    it.getJobLevel(this).toString()))
+                    it.getJobLevelObject(this).level.toString()))
             ).toNiceString()
         }
     }
