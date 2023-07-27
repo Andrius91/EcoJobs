@@ -87,9 +87,12 @@ class Job(
     private val conditions: ConditionList
 
     private val levels = Caffeine.newBuilder().build<Int, JobLevel>()
-    private val effectsDescription = Caffeine.newBuilder().build<Int, List<String>>()
-    private val rewardsDescription = Caffeine.newBuilder().build<Int, List<String>>()
-    private val levelUpMessages = Caffeine.newBuilder().build<Int, List<String>>()
+    private val effectsDescription = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
+                                                            .build<Int, List<String>>()
+    private val rewardsDescription = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
+                                                            .build<Int, List<String>>()
+    private val levelUpMessages = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
+                                                            .build<Int, List<String>>()
 
     private val levelCommands = mutableMapOf<Int, MutableList<String>>()
 
