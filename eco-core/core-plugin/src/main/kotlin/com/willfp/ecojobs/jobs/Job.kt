@@ -94,11 +94,11 @@ class Job(
     private val levelCommands = mutableMapOf<Int, MutableList<String>>()
 
     private val levelPlaceholders = config.getSubsections("level-placeholders").map { sub ->
-        LevelPlaceholder(
-            sub.getString("id")
+        PlayerPlaceholder(
+            plugin, sub.getString("id")
         ) {
             NumberUtils.evaluateExpression(
-                sub.getString("value").replace("%level%", it.toString())
+                PlaceholderAPI.setPlaceholders(it, sub.getString("value"))
             ).toNiceString()
         }
     }
@@ -215,7 +215,6 @@ class Job(
                 highestConfiguredLevel = messagesLevel
             }
         }
-
         this.config.getStrings("level-up-messages.$highestConfiguredLevel").map {
             levelPlaceholders.format(it, level, player)
         }.map {
@@ -409,11 +408,12 @@ data class LeaderboardCacheEntry(
     val amount: Int
 )
 
-private fun Collection<LevelPlaceholder>.format(string: String, level: Int, player: Player): String {
+private fun Collection<PlayerPlaceholder>.format(string: String, level: Int, player: Player): String {
     var process = string
     for (placeholder in this) {
-        process = process.replace("%${placeholder.id}%", placeholder(level))
+        process = process.replace("%${placeholder.identifier}%", placeholder.getValue(player))
     }
+
     println("linea: " + process)
     return PlaceholderAPI.setPlaceholders(player, process)
 }
