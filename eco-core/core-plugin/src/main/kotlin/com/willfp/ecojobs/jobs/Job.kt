@@ -414,6 +414,7 @@ private fun Collection<LevelPlaceholder>.format(string: String, level: Int, play
     for (placeholder in this) {
         process = process.replace("%${placeholder.id}%", placeholder(level))
     }
+    println("linea: " + process)
     return PlaceholderAPI.setPlaceholders(player, process)
 }
 
