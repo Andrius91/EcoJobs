@@ -98,7 +98,8 @@ class Job(
             plugin, sub.getString("id")
         ) {
             NumberUtils.evaluateExpression(
-                PlaceholderAPI.setPlaceholders(it, sub.getString("value"))
+                PlaceholderAPI.setPlaceholders(it, sub.getString("value").replace("%level%",
+                    it.getJobLevel(this).toString()))
             ).toNiceString()
         }
     }
@@ -414,7 +415,6 @@ private fun Collection<PlayerPlaceholder>.format(string: String, level: Int, pla
         process = process.replace("%${placeholder.identifier}%", placeholder.getValue(player))
     }
 
-    println("linea: " + process)
     return PlaceholderAPI.setPlaceholders(player, process)
 }
 
