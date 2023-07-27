@@ -94,12 +94,12 @@ class Job(
     private val levelCommands = mutableMapOf<Int, MutableList<String>>()
 
     private val levelPlaceholders = config.getSubsections("level-placeholders").map { sub ->
-        PlayerPlaceholder(
-            plugin, sub.getString("id")
+        LevelPlaceholder(
+            sub.getString("id")
         ) {
             NumberUtils.evaluateExpression(
-                PlaceholderAPI.setPlaceholders(it, sub.getString("value").replace("%level%",
-                    it.getJobLevelObject(this).level.toString()))
+
+                sub.getString("value").replace("%level%", it.toString())
             ).toNiceString()
         }
     }
@@ -409,12 +409,13 @@ data class LeaderboardCacheEntry(
     val amount: Int
 )
 
-private fun Collection<PlayerPlaceholder>.format(string: String, level: Int, player: Player): String {
+private fun Collection<LevelPlaceholder>.format(string: String, level: Int, player: Player): String {
     var process = string
     for (placeholder in this) {
-        process = process.replace("%${placeholder.identifier}%", placeholder.getValue(player))
+        process = process.replace("%${placeholder.id}%", placeholder(level))
     }
 
+    println("linea: " + process)
     return PlaceholderAPI.setPlaceholders(player, process)
 }
 
