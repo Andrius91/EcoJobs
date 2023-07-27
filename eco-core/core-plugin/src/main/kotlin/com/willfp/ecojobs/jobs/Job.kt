@@ -114,7 +114,6 @@ class Job(
             p.getJobLevel(this).toString()
         })
 
-
         effects = Effects.compile(
             config.getSubsections("effects"),
             ViolationContext(plugin, "Job $id")
@@ -205,7 +204,7 @@ class Job(
         JobLevel(plugin, this, it, effects, conditions)
     }
 
-    private fun getLevelUpMessages(level: Int, whitespace: Int = 0): List<String> = levelUpMessages.get(level) {
+    private fun getLevelUpMessages(player: Player, level: Int, whitespace: Int = 0): List<String> = levelUpMessages.get(level) {
         var highestConfiguredLevel = 1
         for (messagesLevel in this.config.getSubsection("level-up-messages").getKeys(false).map { it.toInt() }) {
             if (messagesLevel > level) {
@@ -218,13 +217,13 @@ class Job(
         }
 
         this.config.getStrings("level-up-messages.$highestConfiguredLevel").map {
-            levelPlaceholders.format(it, level)
+            levelPlaceholders.format(it, level, player)
         }.map {
             " ".repeat(whitespace) + it
         }
     }
 
-    private fun getEffectsDescription(level: Int, whitespace: Int = 0): List<String> = effectsDescription.get(level) {
+    private fun getEffectsDescription(player: Player, level: Int, whitespace: Int = 0): List<String> = effectsDescription.get(level) {
         var highestConfiguredLevel = 1
         for (messagesLevel in this.config.getSubsection("effects-description").getKeys(false).map { it.toInt() }) {
             if (messagesLevel > level) {
@@ -237,13 +236,13 @@ class Job(
         }
 
         this.config.getStrings("effects-description.$highestConfiguredLevel").map {
-            levelPlaceholders.format(it, level)
+            levelPlaceholders.format(it, level, player)
         }.map {
             " ".repeat(whitespace) + it
         }
     }
 
-    private fun getRewardsDescription(level: Int, whitespace: Int = 0): List<String> = rewardsDescription.get(level) {
+    private fun getRewardsDescription(player: Player, level: Int, whitespace: Int = 0): List<String> = rewardsDescription.get(level) {
         var highestConfiguredLevel = 1
         for (messagesLevel in this.config.getSubsection("rewards-description").getKeys(false).map { it.toInt() }) {
             if (messagesLevel > level) {
@@ -256,20 +255,20 @@ class Job(
         }
 
         this.config.getStrings("rewards-description.$highestConfiguredLevel").map {
-            levelPlaceholders.format(it, level)
+            levelPlaceholders.format(it, level, player)
         }.map {
             " ".repeat(whitespace) + it
         }
     }
 
-    private fun getLeaveLore(level: Int, whitespace: Int = 0): List<String> = this.config.getStrings("leave-lore").map {
-        levelPlaceholders.format(it, level)
+    private fun getLeaveLore(player: Player, level: Int, whitespace: Int = 0): List<String> = this.config.getStrings("leave-lore").map {
+        levelPlaceholders.format(it, level, player)
     }.map {
         " ".repeat(whitespace) + it
     }
 
-    private fun getJoinLore(level: Int, whitespace: Int = 0): List<String> = this.config.getStrings("join-lore").map {
-        levelPlaceholders.format(it, level)
+    private fun getJoinLore(player: Player, level: Int, whitespace: Int = 0): List<String> = this.config.getStrings("join-lore").map {
+        levelPlaceholders.format(it, level, player)
     }.map {
         " ".repeat(whitespace) + it
     }
@@ -298,15 +297,15 @@ class Job(
 
             processed.add(
                 if (s.contains("%effects%")) {
-                    getEffectsDescription(forceLevel ?: player.getJobLevel(this), whitespace)
+                    getEffectsDescription(player, forceLevel ?: player.getJobLevel(this), whitespace)
                 } else if (s.contains("%rewards%")) {
-                    getRewardsDescription(forceLevel ?: player.getJobLevel(this), whitespace)
+                    getRewardsDescription(player, forceLevel ?: player.getJobLevel(this), whitespace)
                 } else if (s.contains("%level_up_messages%")) {
-                    getLevelUpMessages(forceLevel ?: player.getJobLevel(this), whitespace)
+                    getLevelUpMessages(player, forceLevel ?: player.getJobLevel(this), whitespace)
                 } else if (s.contains("%leave_lore%")) {
-                    getLeaveLore(forceLevel ?: player.getJobLevel(this), whitespace)
+                    getLeaveLore(player, forceLevel ?: player.getJobLevel(this), whitespace)
                 } else if (s.contains("%join_lore%")) {
-                    getJoinLore(forceLevel ?: player.getJobLevel(this), whitespace)
+                    getJoinLore(player, forceLevel ?: player.getJobLevel(this), whitespace)
                 } else {
                     listOf(s)
                 }
@@ -410,12 +409,12 @@ data class LeaderboardCacheEntry(
     val amount: Int
 )
 
-private fun Collection<LevelPlaceholder>.format(string: String, level: Int): String {
+private fun Collection<LevelPlaceholder>.format(string: String, level: Int, player: Player): String {
     var process = string
     for (placeholder in this) {
         process = process.replace("%${placeholder.id}%", placeholder(level))
     }
-    return process
+    return PlaceholderAPI.setPlaceholders(player, process)
 }
 
 fun OfflinePlayer.getJobLevelObject(job: Job): JobLevel = job.getLevel(this.getJobLevel(job))
