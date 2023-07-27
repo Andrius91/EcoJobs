@@ -96,10 +96,10 @@ class Job(
     private val levelPlaceholders = config.getSubsections("level-placeholders").map { sub ->
         LevelPlaceholder(
             sub.getString("id")
-        ) {
+        ) { level, player ->
             NumberUtils.evaluateExpression(
-
-                sub.getString("value").replace("%level%", it.toString())
+                PlaceholderAPI.setPlaceholders(player, sub.getString("value")
+                    .replace("%level%", level.toString()))
             ).toNiceString()
         }
     }
@@ -399,9 +399,10 @@ class Job(
 }
 
 private class LevelPlaceholder(
-    val id: String, private val function: (Int) -> String
+    val id: String,
+     private val function: (Int, Player) -> String
 ) {
-    operator fun invoke(level: Int) = function(level)
+    operator fun invoke(level: Int, player: Player) = function(level, player)
 }
 
 data class LeaderboardCacheEntry(
@@ -412,10 +413,9 @@ data class LeaderboardCacheEntry(
 private fun Collection<LevelPlaceholder>.format(string: String, level: Int, player: Player): String {
     var process = string
     for (placeholder in this) {
-        process = process.replace("%${placeholder.id}%", placeholder(level))
+        process = process.replace("%${placeholder.id}%", placeholder(level, player))
     }
 
-    println("linea: " + process)
     return PlaceholderAPI.setPlaceholders(player, process)
 }
 
